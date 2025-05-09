@@ -52,8 +52,8 @@ const Portfolio = () => {
     <div id="portfolio" className="py-12 md:py-16 bg-pastel-blue/20">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8 animate-fade-in">
-          <h2 className="text-3xl md:text-4xl font-serif font-medium mb-4">Our Portfolio</h2>
-          <p className="text-zinc-600">Explore our collection of handcrafted artworks</p>
+          <h2 className="text-3xl md:text-4xl font-serif font-medium mb-4">Our <span className="font-playfair italic">Portfolio</span></h2>
+          <p className="text-zinc-600 font-sans">Explore our collection of handcrafted artworks</p>
         </div>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
@@ -72,7 +72,7 @@ const Portfolio = () => {
                     />
                   </div>
                   <div className="p-4 group">
-                    <h3 className="font-serif text-lg font-medium transition-transform group-hover:translate-x-1 duration-300">{item.title}</h3>
+                    <h3 className="font-playfair text-lg font-medium transition-transform group-hover:translate-x-1 duration-300">{item.title}</h3>
                   </div>
                 </CardContent>
               </Card>
@@ -92,8 +92,8 @@ const Portfolio = () => {
               />
             </div>
             <div className="flex flex-col justify-center p-2 animate-fade-in" style={{ animationDelay: '0.2s' }}>
-              <h3 className="text-2xl font-serif font-medium mb-2">{selectedItem?.title}</h3>
-              <p className="text-zinc-600 mb-4">{selectedItem?.description}</p>
+              <h3 className="text-2xl font-playfair font-medium mb-2">{selectedItem?.title}</h3>
+              <p className="text-zinc-600 mb-4 font-sans">{selectedItem?.description}</p>
               <Button className="transition-all duration-300 hover:translate-y-[-2px]">Enquire About This Item</Button>
             </div>
           </div>
