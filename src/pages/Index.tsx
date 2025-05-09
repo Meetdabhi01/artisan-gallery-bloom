@@ -6,6 +6,7 @@ import EnquiryForm from '@/components/EnquiryForm';
 import PaymentInfo from '@/components/PaymentInfo';
 import VideoList from '@/components/VideoList';
 import Portfolio from '@/components/Portfolio';
+import { Phone, MapPin, Mail, Globe, Share2 } from 'lucide-react';
 
 // Sample product data
 const products = [
@@ -80,13 +81,83 @@ const Index = () => {
     <div className="min-h-screen">
       <NavigationBar />
       
-      {/* Hero Section */}
-      <header className="py-16 md:py-24 text-center relative">
-        <div className="absolute inset-0 -z-10 opacity-40 bg-[radial-gradient(circle_at_center,rgba(255,230,230,0.8),rgba(250,250,250,0))]"></div>
-        <h1 className="font-serif text-4xl md:text-6xl mb-4 animate-fade-in">Artisan Treasures</h1>
-        <p className="text-zinc-600 max-w-xl mx-auto px-4 animate-fade-in" style={{ animationDelay: "100ms" }}>
-          A curated collection of handmade art and craft items from independent artisans around the world.
-        </p>
+      {/* Updated Hero Section */}
+      <header className="py-16 md:py-20 relative bg-[#e9dfd0]">
+        <div className="max-w-4xl mx-auto px-6 md:px-8">
+          <div className="flex flex-col md:flex-row gap-8 items-center">
+            {/* Logo Circle */}
+            <div className="relative animate-fade-in">
+              <div className="w-48 h-48 md:w-56 md:h-56 rounded-full bg-white shadow-lg flex items-center justify-center border-4 border-white">
+                <div className="text-center p-4">
+                  <p className="text-xs font-medium text-gray-500 mb-1">EST. 2014</p>
+                  <h2 className="text-2xl font-playfair font-bold">ARTISAN</h2>
+                  <h3 className="text-xl font-playfair font-bold">TREASURES</h3>
+                  <p className="text-sm italic mt-1 text-primary">Shop</p>
+                </div>
+              </div>
+            </div>
+            
+            {/* Right Content */}
+            <div className="flex-1 animate-fade-in" style={{ animationDelay: "200ms" }}>
+              <h1 className="text-3xl md:text-4xl font-playfair font-bold mb-2">Art & Craft</h1>
+              <h2 className="text-xl md:text-2xl font-sans text-zinc-700 mb-6">Artisan Collections</h2>
+              
+              {/* Contact Info Blocks */}
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+                <div className="flex gap-3 items-center">
+                  <div className="bg-primary/90 p-2 rounded-md shadow-sm text-white">
+                    <Phone size={20} />
+                  </div>
+                  <span className="text-sm">+1 (555) 123-4567</span>
+                </div>
+                <div className="flex gap-3 items-center">
+                  <div className="bg-primary/90 p-2 rounded-md shadow-sm text-white">
+                    <Mail size={20} />
+                  </div>
+                  <span className="text-sm">info@artisan.com</span>
+                </div>
+                <div className="flex gap-3 items-center">
+                  <div className="bg-primary/90 p-2 rounded-md shadow-sm text-white">
+                    <MapPin size={20} />
+                  </div>
+                  <span className="text-sm">123 Craft St, Artville</span>
+                </div>
+                <div className="flex gap-3 items-center">
+                  <div className="bg-primary/90 p-2 rounded-md shadow-sm text-white">
+                    <Globe size={20} />
+                  </div>
+                  <span className="text-sm">www.artisan.com</span>
+                </div>
+              </div>
+              
+              {/* Share buttons */}
+              <div className="flex gap-4">
+                <button className="bg-primary/90 text-white px-5 py-2 rounded flex items-center gap-2 hover:bg-primary transition-colors">
+                  <Share2 size={18} />
+                  <span>Share</span>
+                </button>
+                <button className="bg-zinc-700/90 text-white px-5 py-2 rounded flex items-center gap-2 hover:bg-zinc-700 transition-colors">
+                  Add to Contacts
+                </button>
+              </div>
+              
+              {/* Social Media Icons */}
+              <div className="flex gap-3 mt-6">
+                {['facebook', 'instagram', 'pinterest', 'snapchat', 'twitter', 'youtube', 'whatsapp'].map((social) => (
+                  <a 
+                    key={social}
+                    href="#" 
+                    className="w-9 h-9 rounded-full bg-white shadow-sm flex items-center justify-center hover:scale-110 transition-transform"
+                    aria-label={`Follow on ${social}`}
+                  >
+                    <div className={`w-5 h-5 bg-center bg-no-repeat bg-contain`} 
+                      style={{ backgroundImage: `url(/placeholder.svg)` }}></div>
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
       </header>
       
       {/* Product Catalog Section */}
