@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogClose } from "@/components/ui/dialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Cross2Icon } from '@radix-ui/react-icons';
+import { X } from 'lucide-react';
 
 // Sample portfolio data
 const portfolioItems = [
@@ -98,7 +98,7 @@ const Portfolio = () => {
             </div>
           </div>
           <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-zinc-400 focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-zinc-100">
-            <Cross2Icon className="h-4 w-4" />
+            <X className="h-4 w-4" />
             <span className="sr-only">Close</span>
           </DialogClose>
         </DialogContent>
