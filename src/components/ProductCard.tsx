@@ -1,7 +1,8 @@
 
 import React from 'react';
 import { cn } from "@/lib/utils";
-import { flower } from 'lucide-react';
+// Fixing the import error - remove flower import as it doesn't exist
+// import { flower } from 'lucide-react';
 
 interface ProductCardProps {
   title: string;

@@ -1,6 +1,11 @@
 
 import React from 'react';
 import ProductCard from "@/components/ProductCard";
+import NavigationBar from '@/components/NavigationBar';
+import EnquiryForm from '@/components/EnquiryForm';
+import PaymentInfo from '@/components/PaymentInfo';
+import VideoList from '@/components/VideoList';
+import Portfolio from '@/components/Portfolio';
 
 // Sample product data
 const products = [
@@ -16,7 +21,7 @@ const products = [
     id: 2,
     title: "Macramé Wall Hanging",
     description: "Intricately knotted macramé wall hanging made from 100% cotton rope. Adds texture and warmth to any space.",
-    image: "https://images.unsplash.com/photo-1582643381669-4db bearer:3cc5df9d9695?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
+    image: "https://images.unsplash.com/photo-1582643381669-4db3cc5df9695?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3",
     price: "$78.00",
     bgColor: "bg-pastel-pink"
   },
@@ -73,7 +78,10 @@ const products = [
 const Index = () => {
   return (
     <div className="min-h-screen">
-      <header className="py-12 md:py-20 text-center relative">
+      <NavigationBar />
+      
+      {/* Hero Section */}
+      <header className="py-16 md:py-24 text-center relative">
         <div className="absolute inset-0 -z-10 opacity-40 bg-[radial-gradient(circle_at_center,rgba(255,230,230,0.8),rgba(250,250,250,0))]"></div>
         <h1 className="font-serif text-4xl md:text-6xl mb-4 animate-fade-in">Artisan Treasures</h1>
         <p className="text-zinc-600 max-w-xl mx-auto px-4 animate-fade-in" style={{ animationDelay: "100ms" }}>
@@ -81,7 +89,13 @@ const Index = () => {
         </p>
       </header>
       
-      <section className="max-w-7xl mx-auto px-4 md:px-8 mb-20">
+      {/* Product Catalog Section */}
+      <section id="products" className="max-w-7xl mx-auto px-4 md:px-8 mb-20">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-serif font-medium mb-4">Our Products</h2>
+          <p className="text-zinc-600">Each piece tells a unique story through craftsmanship</p>
+        </div>
+        
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
           {products.map((product, index) => (
             <div key={product.id} className="animate-scale-in" style={{ animationDelay: `${index * 50}ms` }}>
@@ -97,7 +111,20 @@ const Index = () => {
         </div>
       </section>
       
-      <footer className="py-8 text-center text-zinc-500 text-sm">
+      {/* Portfolio Section */}
+      <Portfolio />
+      
+      {/* Video List Section */}
+      <VideoList />
+      
+      {/* Payment Information Section */}
+      <PaymentInfo />
+      
+      {/* Enquiry Form Section */}
+      <EnquiryForm />
+      
+      {/* Footer */}
+      <footer className="py-8 text-center text-zinc-500 text-sm bg-pastel-cream/30">
         <div className="max-w-md mx-auto px-4">
           <p>Handcrafted with care. Each item tells a unique story.</p>
           <div className="mt-4 flex justify-center space-x-3">
