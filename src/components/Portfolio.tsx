@@ -51,16 +51,16 @@ const Portfolio = () => {
   return (
     <div id="portfolio" className="py-12 md:py-16 bg-pastel-blue/20">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-8">
+        <div className="text-center mb-8 animate-fade-in">
           <h2 className="text-3xl md:text-4xl font-serif font-medium mb-4">Our Portfolio</h2>
           <p className="text-zinc-600">Explore our collection of handcrafted artworks</p>
         </div>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
           {portfolioItems.map((item, index) => (
-            <div key={item.id} className="animate-scale-in" style={{ animationDelay: `${index * 50}ms` }}>
+            <div key={item.id} className="animate-scale-in" style={{ animationDelay: `${index * 100}ms` }}>
               <Card 
-                className="overflow-hidden border-zinc-100 hover-card cursor-pointer"
+                className="overflow-hidden border-zinc-100 hover-card cursor-pointer transition-all duration-300 hover:shadow-lg hover:transform hover:scale-[1.03]"
                 onClick={() => setSelectedItem(item)}
               >
                 <CardContent className="p-0">
@@ -68,11 +68,11 @@ const Portfolio = () => {
                     <img 
                       src={item.image} 
                       alt={item.title}
-                      className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                      className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
                     />
                   </div>
-                  <div className="p-4">
-                    <h3 className="font-serif text-lg font-medium">{item.title}</h3>
+                  <div className="p-4 group">
+                    <h3 className="font-serif text-lg font-medium transition-transform group-hover:translate-x-1 duration-300">{item.title}</h3>
                   </div>
                 </CardContent>
               </Card>
@@ -82,19 +82,19 @@ const Portfolio = () => {
       </div>
 
       <Dialog open={!!selectedItem} onOpenChange={(open) => !open && setSelectedItem(null)}>
-        <DialogContent className="max-w-3xl w-[90vw]">
+        <DialogContent className="max-w-3xl w-[90vw] animate-fade-in">
           <div className="grid md:grid-cols-2 gap-4">
-            <div className="aspect-square overflow-hidden rounded-md">
+            <div className="aspect-square overflow-hidden rounded-md animate-scale-in" style={{ animationDuration: '0.4s' }}>
               <img 
                 src={selectedItem?.image} 
                 alt={selectedItem?.title}
                 className="w-full h-full object-cover"
               />
             </div>
-            <div className="flex flex-col justify-center p-2">
+            <div className="flex flex-col justify-center p-2 animate-fade-in" style={{ animationDelay: '0.2s' }}>
               <h3 className="text-2xl font-serif font-medium mb-2">{selectedItem?.title}</h3>
               <p className="text-zinc-600 mb-4">{selectedItem?.description}</p>
-              <Button>Enquire About This Item</Button>
+              <Button className="transition-all duration-300 hover:translate-y-[-2px]">Enquire About This Item</Button>
             </div>
           </div>
           <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-zinc-400 focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-zinc-100">
