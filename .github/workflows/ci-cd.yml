@@ -41,7 +41,7 @@ jobs:
           mv dist "builds/${{ steps.sanitize.outputs.folder }}"
 
       - name: 🧪 Check token length
-        run: echo "Length: ${#DEPLOY_TOKEN}"
+        run: echo "Length ${#DEPLOY_TOKEN}"
         env:
           DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
 
