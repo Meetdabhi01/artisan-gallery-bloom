@@ -45,12 +45,13 @@ jobs:
       - name: 🗂️ Create zip from dist folder
         run: |
           mkdir -p builds
+          # COMMIT_NAME=$(echo "${{ steps.get_commit.outputs.message }}" | tr -cd '[:alnum:]_-')
           COMMIT_NAME=$(echo "${{ steps.get_commit.outputs.message }}" | tr -cd '[:alnum:]_-')
-          echo "Using zip name: $COMMIT_NAME"
 
           # Create zip directly from dist folder
           cd dist
-          zip -r "../builds/${COMMIT_NAME}.zip" .
+          # zip -r "../builds/${COMMIT_NAME}.zip" .
+          tar -czf "../builds/${COMMIT_NAME}.tar.gz" .
           cd ..
 
           echo "✅ Created zip file: ${COMMIT_NAME}.zip"
