@@ -63,30 +63,30 @@ jobs:
           mkdir -p builds
 
           # Use commit hash + sanitized message for unique naming
-          ZIP_NAME="${{ steps.commit_info.outputs.safe_name }}-${{ steps.commit_info.outputs.hash }}"
+          COMMIT_NAME=$(echo "${{ steps.get_commit.outputs.message }}" | tr -cd '[:alnum:]_-')
 
-          echo "🚀 Creating optimized build: ${ZIP_NAME}"
+          ZIP_NAME="${COMMIT_NAME}"
+
+          echo "🚀 Creating ultra-fast zip: ${ZIP_NAME}"
 
           # Ultra-fast zip with no compression + parallel processing
           cd dist
 
           # Use tar instead of zip for better performance
-          time tar -cf "../builds/${ZIP_NAME}.tar" . &
-          TAR_PID=$!
+          time zip -r -0 "../builds/${ZIP_NAME}.zip" . &
+          ZIP_PID=$!      echo "📦 Zip creation running in background..."
 
-          # Or if you need zip format, use fastest settings
-          # time zip -r -0 -q "../builds/${ZIP_NAME}.zip" . &
-          # ZIP_PID=$!
+          # Wait for zip completion
+          wait $ZIP_PID
 
-          wait $TAR_PID
           cd ..
 
-          # Quick verification
-          if [ -f "builds/${ZIP_NAME}.tar" ]; then
-            SIZE=$(du -sh "builds/${ZIP_NAME}.tar" | cut -f1)
-            echo "✅ SUCCESS: ${ZIP_NAME}.tar created (${SIZE})"
+          # Quick verification and size check
+          if [ -f "builds/${ZIP_NAME}.zip" ]; then
+            SIZE=$(du -sh "builds/${ZIP_NAME}.zip" | cut -f1)
+            echo "✅ SUCCESS: ${ZIP_NAME}.zip created (${SIZE})"
           else
-            echo "❌ FAILED: Archive creation failed!"
+            echo "❌ FAILED: Zip creation failed!"
             exit 1
           fi
 
