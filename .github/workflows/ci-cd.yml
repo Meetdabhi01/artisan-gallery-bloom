@@ -3,48 +3,51 @@ name: React CI/CD
 on:
   push:
     branches:
-      - main # tamari main branch
+      - main # change if needed
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout source code
+      - name: 📥 Checkout source code
         uses: actions/checkout@v3
 
-      - name: Setup Node.js
+      - name: 🧰 Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18
 
-      - name: Install dependencies
+      - name: 📦 Install dependencies
         run: npm install
 
-      - name: Build React App
+      - name: 🛠️ Build React App (Vite)
         run: npm run build
 
-      - name: Get commit message
+      - name: 🔍 Get Commit Message
         id: get_commit
         run: echo "message=$(git log -1 --pretty=%s)" >> $GITHUB_OUTPUT
 
-      - name: Rename build folder to commit message
+      - name: 🧼 Sanitize commit message
+        id: sanitize
         run: |
-          COMMIT_NAME="${{ steps.get_commit.outputs.message }}"
-          SANITIZED_NAME=$(echo "$COMMIT_NAME" | tr -cd '[:alnum:]-_')
+          RAW_NAME="${{ steps.get_commit.outputs.message }}"
+          SAFE_NAME=$(echo "$RAW_NAME" | tr -cd '[:alnum:]-_')
+          echo "folder=$SAFE_NAME" >> $GITHUB_OUTPUT
 
-          if [ ! -d "dist" ]; then
-            echo "❌ Build folder not found. Check if npm run build failed."
-            exit 1
-          fi
-
+      - name: 🗂️ Move build to builds/<commit-name>
+        run: |
           mkdir -p builds
-          mv dist "builds/$SANITIZED_NAME"
+          mv dist "builds/${{ steps.sanitize.outputs.folder }}"
 
-      - name: Commit and Push build folder
+      - name: 🚀 Commit and Push build folder
+        env:
+          DEPLOY_TOKEN: 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
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
+          git remote set-url origin https://x-access-token:${DEPLOY_TOKEN}@github.com/${{ github.repository }}
+
           git add builds/
-          git commit -m "Add build for: ${{ steps.get_commit.outputs.message }}"
-          git push
+          git commit -m "Add build for: ${{ steps.get_commit.outputs.message }}" || echo "No changes to commit"
+          git push origin HEAD
