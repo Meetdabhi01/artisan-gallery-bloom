@@ -42,25 +42,19 @@ jobs:
         run: |
           ls -R builds || echo "builds folder doesn't exist yet"
 
-      - name: 🗂️ Create builds structure and zip
+      - name: 🗂️ Create zip from dist folder
         run: |
           mkdir -p builds
           COMMIT_NAME=$(echo "${{ steps.get_commit.outputs.message }}" | tr -cd '[:alnum:]_-')
-          echo "Using folder name: $COMMIT_NAME"
+          echo "Using zip name: $COMMIT_NAME"
 
-          # Create folder with commit name
-          mkdir -p "builds/$COMMIT_NAME"
-
-          # Copy dist contents to the named folder
-          cp -r dist/* "builds/$COMMIT_NAME/"
-
-          # Create zip file with same name
-          cd builds
-          zip -r "${COMMIT_NAME}.zip" "$COMMIT_NAME"
+          # Create zip directly from dist folder
+          cd dist
+          zip -r "../builds/${COMMIT_NAME}.zip" .
           cd ..
 
-          echo "✅ Created folder and zip for: $COMMIT_NAME"
-          ls -R builds
+          echo "✅ Created zip file: ${COMMIT_NAME}.zip"
+          ls -la builds/
 
       - name: 🧪 Check token length
         run: echo "Length ${#DEPLOY_TOKEN}"
