@@ -15,6 +15,7 @@ jobs:
         with:
           fetch-depth: 0 # required if you need full history
           persist-credentials: true # ensure GitHub token stays
+
       - name: 🧰 Setup Node.js
         uses: actions/setup-node@v3
         with:
@@ -37,16 +38,28 @@ jobs:
           SAFE_NAME=$(echo "$RAW_NAME" | tr -cd '[:alnum:]-_')
           echo "folder=$SAFE_NAME" >> $GITHUB_OUTPUT
 
-      - name: 🕵️ Show builds folder content
+      - name: 🕵️ Show builds folder content (before)
         run: |
-          ls -R builds
+          ls -R builds || echo "builds folder doesn't exist yet"
 
-      - name: 🗂️ Move build to builds/<commit-name>
+      - name: 🗂️ Create builds structure and zip
         run: |
           mkdir -p builds
           COMMIT_NAME=$(echo "${{ steps.get_commit.outputs.message }}" | tr -cd '[:alnum:]_-')
           echo "Using folder name: $COMMIT_NAME"
-          mv dist "builds/$COMMIT_NAME"
+
+          # Create folder with commit name
+          mkdir -p "builds/$COMMIT_NAME"
+
+          # Copy dist contents to the named folder
+          cp -r dist/* "builds/$COMMIT_NAME/"
+
+          # Create zip file with same name
+          cd builds
+          zip -r "${COMMIT_NAME}.zip" "$COMMIT_NAME"
+          cd ..
+
+          echo "✅ Created folder and zip for: $COMMIT_NAME"
           ls -R builds
 
       - name: 🧪 Check token length
@@ -59,9 +72,13 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
 
-          git add builds/
-          git commit -m "Add build for: ${{ steps.get_commit.outputs.message }}" || echo "No changes to commit"
-          git push
+          git add builds/ --force
+          if [ -n "$(git status --porcelain)" ]; then
+            git commit -m "Add build for: ${{ steps.get_commit.outputs.message }}"
+            git push
+          else
+            echo "No new build changes to commit"
+          fi
 
       - name: 📂 Show Git Status
         run: |
