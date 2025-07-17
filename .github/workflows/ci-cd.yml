@@ -44,10 +44,10 @@ jobs:
       - name: 🗂️ Move build to builds/<commit-name>
         run: |
           mkdir -p builds
-          mv dist "builds/${{ steps.sanitize.outputs.folder }}"
-
-          # Force Git to track the files
-          git add "builds/${{ steps.sanitize.outputs.folder }}" || echo "Nothing to add"
+          COMMIT_NAME=$(echo "${{ steps.get_commit.outputs.message }}" | tr -cd '[:alnum:]_-')
+          echo "Using folder name: $COMMIT_NAME"
+          mv dist "builds/$COMMIT_NAME"
+          ls -R builds
 
       - name: 🧪 Check token length
         run: echo "Length ${#DEPLOY_TOKEN}"
@@ -55,20 +55,13 @@ jobs:
           DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
 
       - name: 🚀 Commit and Push build folder
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Already auto-created
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
 
-          # Checkout the current branch to avoid detached HEAD
-          git checkout main
-
           git add builds/
           git commit -m "Add build for: ${{ steps.get_commit.outputs.message }}" || echo "No changes to commit"
-
-          # Use GitHub token to push
-          git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }} main
+          git push
 
       - name: 📂 Show Git Status
         run: |
