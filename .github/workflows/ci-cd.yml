@@ -40,7 +40,7 @@ jobs:
           mkdir -p builds
           mv dist "builds/${{ steps.sanitize.outputs.folder }}"
 
-      - name: 🚀 Commit and Push build folder
+      - name: 🚀 Commit and Push build folder ${{ secrets.DEPLOY_TOKEN }}
         env:
           DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
         run: |
