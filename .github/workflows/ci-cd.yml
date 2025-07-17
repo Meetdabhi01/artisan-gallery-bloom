@@ -50,10 +50,11 @@ jobs:
           COMMIT_MSG=$(git log -1 --pretty=format:"%s")
           COMMIT_HASH=$(git log -1 --pretty=format:"%h")
 
-          # Sanitize commit message for filename
+          # Sanitize commit message for filename (remove special chars)
           SAFE_NAME=$(echo "$COMMIT_MSG" | sed 's/[^a-zA-Z0-9-_]//g' | cut -c1-50)
 
-          echo "message=$COMMIT_MSG" >> $GITHUB_OUTPUT
+          # Properly escape the commit message for output
+          echo "message=$(echo "$COMMIT_MSG" | sed 's/"/\\"/g')" >> $GITHUB_OUTPUT
           echo "hash=$COMMIT_HASH" >> $GITHUB_OUTPUT
           echo "safe_name=$SAFE_NAME" >> $GITHUB_OUTPUT
 
@@ -100,7 +101,9 @@ jobs:
 
           # Check if there are changes and commit in one step
           if ! git diff --cached --quiet; then
-            git commit -m "🚀 Build: ${{ steps.commit_info.outputs.message }} (${{ steps.commit_info.outputs.hash }})"
+            # Escape commit message properly
+            ESCAPED_MSG=$(echo "${{ steps.commit_info.outputs.message }}" | sed 's/"/\\"/g')
+            git commit -m "🚀 Build: ${ESCAPED_MSG} (${{ steps.commit_info.outputs.hash }})"
             git push --quiet
             echo "✅ Build committed and pushed"
           else
