@@ -41,10 +41,12 @@ jobs:
           mv dist "builds/${{ steps.sanitize.outputs.folder }}"
 
       - name: 🚀 Commit and Push build folder
+        env:
+          DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git remote set-url origin https://x-access-token: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@github.com/${{ github.repository }}
+          git remote set-url origin https://x-access-token:${DEPLOY_TOKEN}@github.com/${{ github.repository }}
 
           git add builds/
           git commit -m "Add build for: ${{ steps.get_commit.outputs.message }}" || echo "No changes to commit"
