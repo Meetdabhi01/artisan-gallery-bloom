@@ -110,7 +110,7 @@ const Index = () => {
         </p>
       </header>
 
-      {/* Product Catalog Section */}
+      {/* Product Catalog Section  */}
       <section
         id="products"
         style={{ marginTop: "80px" }}
