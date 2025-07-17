@@ -17,7 +17,7 @@ const PaymentInfo = () => {
       icon: <Smartphone className="h-5 w-5 text-[#4285F4]" />,
     },
     {
-      id: "phonepay",
+      id: "phonepay ",
       label: "PhonePe",
       value: "9807654321",
       icon: <Phone className="h-5 w-5 text-[#5F259F]" />,
