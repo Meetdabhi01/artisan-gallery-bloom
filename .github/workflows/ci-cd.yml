@@ -33,13 +33,13 @@ jobs:
           COMMIT_NAME="${{ steps.get_commit.outputs.message }}"
           SANITIZED_NAME=$(echo "$COMMIT_NAME" | tr -cd '[:alnum:]-_')
 
-          if [ ! -d "build" ]; then
+          if [ ! -d "dist" ]; then
             echo "❌ Build folder not found. Check if npm run build failed."
             exit 1
           fi
 
           mkdir -p builds
-          mv build "builds/$SANITIZED_NAME"
+          mv dist "builds/$SANITIZED_NAME"
 
       - name: Commit and Push build folder
         run: |
