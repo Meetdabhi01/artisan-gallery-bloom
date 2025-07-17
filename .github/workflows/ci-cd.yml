@@ -20,9 +20,33 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18
+          cache: "npm" # Built-in npm cache
 
-      - name: 📦 Install dependencies
-        run: npm install
+      - name: 🚀 Cache node_modules
+        uses: actions/cache@v3
+        id: cache-deps
+        with:
+          path: |
+            node_modules
+            ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: 📦 Install dependencies (only if cache miss)
+        if: steps.cache-deps.outputs.cache-hit != 'true'
+        run: |
+          echo "🔄 Cache miss - Installing dependencies..."
+          npm ci --prefer-offline --no-audit
+
+      - name: ✅ Dependencies status
+        run: |
+          if [ "${{ steps.cache-deps.outputs.cache-hit }}" == "true" ]; then
+            echo "🎉 Cache HIT! Dependencies restored from cache"
+          else
+            echo "📦 Cache MISS! Dependencies installed fresh"
+          fi
+          echo "📊 node_modules size: $(du -sh node_modules | cut -f1)"
 
       - name: 🛠️ Build React App (Vite)
         run: npm run build
@@ -42,18 +66,33 @@ jobs:
         run: |
           ls -R builds || echo "builds folder doesn't exist yet"
 
-      - name: 🗂️ Create zip from dist folder
+      - name: ⚡ Ultra Fast Zip Creation
         run: |
           mkdir -p builds
-          # COMMIT_NAME=$(echo "${{ steps.get_commit.outputs.message }}" | tr -cd '[:alnum:]_-')
+          COMMIT_NAME=$(echo "${{ steps.get_commit.outputs.message }}" | tr -cd '[:alnum:]_-')
           echo "Using zip name: $COMMIT_NAME"
 
-          # Create zip directly from dist folder
+          # Ultra-fast zip with zero compression
           cd dist
           time zip -r -0 "../builds/${ZIP_NAME}.zip" . &
+          ZIP_PID=$!
+
+          echo "📦 Zip creation running in background..."
+
+          # Wait for zip completion
+          wait $ZIP_PID
           cd ..
 
-          echo "✅ Created zip file: ${COMMIT_NAME}.zip"
+          # Quick verification and size check
+          if [ -f "builds/${ZIP_NAME}.zip" ]; then
+            SIZE=$(du -sh "builds/${ZIP_NAME}.zip" | cut -f1)
+            echo "✅ SUCCESS: ${ZIP_NAME}.zip created (${SIZE})"
+          else
+            echo "❌ FAILED: Zip creation failed!"
+            exit 1
+          fi
+
+          echo "📊 Current builds:"
           ls -la builds/
 
       - name: 🧪 Check token length
