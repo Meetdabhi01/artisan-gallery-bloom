@@ -48,10 +48,22 @@ jobs:
           DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
 
       - name: 🚀 Commit and Push build folder
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Already auto-created
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
 
+          # Checkout the current branch to avoid detached HEAD
+          git checkout main
+
           git add builds/
           git commit -m "Add build for: ${{ steps.get_commit.outputs.message }}" || echo "No changes to commit"
-          git push
+
+          # Use GitHub token to push
+          git push https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }} main
+
+      - name: 📂 Show Git Status
+        run: |
+          git status
+          git log -1
