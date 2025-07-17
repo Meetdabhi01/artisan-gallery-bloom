@@ -1,0 +1,43 @@
+name: React CI/CD
+
+on:
+  push:
+    branches:
+      - main # tamari main branch
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build React App
+        run: npm run build
+
+      - name: Get commit message
+        id: get_commit
+        run: echo "message=$(git log -1 --pretty=%s)" >> $GITHUB_OUTPUT
+
+      - name: Rename build folder to commit message
+        run: |
+          COMMIT_NAME="${{ steps.get_commit.outputs.message }}"
+          SANITIZED_NAME=$(echo $COMMIT_NAME | tr -cd '[:alnum:]-_')
+          mv build "builds/$SANITIZED_NAME"
+
+      - name: Commit and Push build folder
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add builds/
+          git commit -m "Add build for: ${{ steps.get_commit.outputs.message }}"
+          git push
