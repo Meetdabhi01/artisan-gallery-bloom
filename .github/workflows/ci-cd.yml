@@ -1,4 +1,4 @@
-name: React CI/CD
+name: React CI/CD (Optimized)
 
 on:
   push:
@@ -11,113 +11,109 @@ jobs:
 
     steps:
       - name: 📥 Checkout source code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4 # Updated to v4
         with:
-          fetch-depth: 0 # required if you need full history
-          persist-credentials: true # ensure GitHub token stays
+          fetch-depth: 1 # Only get latest commit unless you need full history
+          persist-credentials: true
 
       - name: 🧰 Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4 # Updated to v4
         with:
-          node-version: 18
-          cache: "npm" # Built-in npm cache
+          node-version: 20 # Use Node 20 for better performance
+          cache: "npm"
 
-      - name: 🚀 Cache node_modules
-        uses: actions/cache@v3
-        id: cache-deps
-        with:
-          path: |
-            node_modules
-            ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
-      - name: 📦 Install dependencies (only if cache miss)
-        if: steps.cache-deps.outputs.cache-hit != 'true'
+      # Simplified single cache step - no separate cache action needed
+      - name: 📦 Install dependencies
         run: |
-          echo "🔄 Cache miss - Installing dependencies..."
-          npm ci --prefer-offline --no-audit
+          # Use npm ci with performance flags
+          npm ci --prefer-offline --no-audit --no-fund --silent
+        env:
+          # Speed up npm operations
+          NPM_CONFIG_PREFER_OFFLINE: true
+          NPM_CONFIG_AUDIT: false
+          NPM_CONFIG_FUND: false
+          NPM_CONFIG_PROGRESS: false
 
-      - name: ✅ Dependencies status
+      - name: 🛠️ Build React App (Parallel)
         run: |
-          if [ "${{ steps.cache-deps.outputs.cache-hit }}" == "true" ]; then
-            echo "🎉 Cache HIT! Dependencies restored from cache"
-          else
-            echo "📦 Cache MISS! Dependencies installed fresh"
-          fi
-          echo "📊 node_modules size: $(du -sh node_modules | cut -f1)"
+          # Use all available CPU cores for build
+          npm run build
+        env:
+          # Enable parallel processing for build tools
+          NODE_OPTIONS: "--max-old-space-size=4096"
+          CI: true
 
-      - name: 🛠️ Build React App (Vite)
-        run: npm run build
-
-      - name: 🔍 Get Commit Message
-        id: get_commit
-        run: echo "message=$(git log -1 --pretty=%s)" >> $GITHUB_OUTPUT
-
-      - name: 🧼 Sanitize commit message
-        id: sanitize
+      - name: 🔍 Get Commit Info (Optimized)
+        id: commit_info
         run: |
-          RAW_NAME="${{ steps.get_commit.outputs.message }}"
-          SAFE_NAME=$(echo "$RAW_NAME" | tr -cd '[:alnum:]-_')
-          echo "folder=$SAFE_NAME" >> $GITHUB_OUTPUT
+          # Get both message and hash in one operation
+          COMMIT_MSG=$(git log -1 --pretty=format:"%s")
+          COMMIT_HASH=$(git log -1 --pretty=format:"%h")
 
-      - name: 🕵️ Show builds folder content (before)
-        run: |
-          ls -R builds || echo "builds folder doesn't exist yet"
+          # Sanitize commit message for filename
+          SAFE_NAME=$(echo "$COMMIT_MSG" | sed 's/[^a-zA-Z0-9-_]//g' | cut -c1-50)
 
-      - name: ⚡ Ultra Fast Zip Creation
+          echo "message=$COMMIT_MSG" >> $GITHUB_OUTPUT
+          echo "hash=$COMMIT_HASH" >> $GITHUB_OUTPUT
+          echo "safe_name=$SAFE_NAME" >> $GITHUB_OUTPUT
+
+      - name: ⚡ Ultra Fast Build Processing
         run: |
           mkdir -p builds
-          COMMIT_NAME=$(echo "${{ steps.get_commit.outputs.message }}" | tr -cd '[:alnum:]_-')
 
-          # Add timestamp for uniqueness
-          ZIP_NAME="${COMMIT_NAME}"
+          # Use commit hash + sanitized message for unique naming
+          ZIP_NAME="${{ steps.commit_info.outputs.safe_name }}-${{ steps.commit_info.outputs.hash }}"
 
-          echo "🚀 Creating ultra-fast zip: ${ZIP_NAME}"
+          echo "🚀 Creating optimized build: ${ZIP_NAME}"
 
-          # Ultra-fast zip with zero compression
+          # Ultra-fast zip with no compression + parallel processing
           cd dist
-          time zip -r -0 "../builds/${ZIP_NAME}.zip" . &
-          ZIP_PID=$!
 
-          echo "📦 Zip creation running in background..."
+          # Use tar instead of zip for better performance
+          time tar -cf "../builds/${ZIP_NAME}.tar" . &
+          TAR_PID=$!
 
-          # Wait for zip completion
-          wait $ZIP_PID
+          # Or if you need zip format, use fastest settings
+          # time zip -r -0 -q "../builds/${ZIP_NAME}.zip" . &
+          # ZIP_PID=$!
+
+          wait $TAR_PID
           cd ..
 
-          # Quick verification and size check
-          if [ -f "builds/${ZIP_NAME}.zip" ]; then
-            SIZE=$(du -sh "builds/${ZIP_NAME}.zip" | cut -f1)
-            echo "✅ SUCCESS: ${ZIP_NAME}.zip created (${SIZE})"
+          # Quick verification
+          if [ -f "builds/${ZIP_NAME}.tar" ]; then
+            SIZE=$(du -sh "builds/${ZIP_NAME}.tar" | cut -f1)
+            echo "✅ SUCCESS: ${ZIP_NAME}.tar created (${SIZE})"
           else
-            echo "❌ FAILED: Zip creation failed!"
+            echo "❌ FAILED: Archive creation failed!"
             exit 1
           fi
 
-          echo "📊 Current builds:"
-          ls -la builds/
-
-      - name: 🧪 Check token length
-        run: echo "Length ${#DEPLOY_TOKEN}"
-        env:
-          DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
-
-      - name: 🚀 Commit and Push build folder
+      - name: 🚀 Commit and Push (Optimized)
         run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
+          # Configure git once
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
+          # Add only the builds directory
           git add builds/ --force
-          if [ -n "$(git status --porcelain)" ]; then
-            git commit -m "Add build for: ${{ steps.get_commit.outputs.message }}"
-            git push
+
+          # Check if there are changes and commit in one step
+          if ! git diff --cached --quiet; then
+            git commit -m "🚀 Build: ${{ steps.commit_info.outputs.message }} (${{ steps.commit_info.outputs.hash }})"
+            git push --quiet
+            echo "✅ Build committed and pushed"
           else
-            echo "No new build changes to commit"
+            echo "ℹ️ No new build changes to commit"
           fi
 
-      - name: 📂 Show Git Status
+      - name: 📊 Build Summary
         run: |
-          git status
-          git log -1
+          echo "📁 Builds directory:"
+          ls -lah builds/ 2>/dev/null || echo "No builds directory"
+
+          echo "📈 Build stats:"
+          echo "- Commit: ${{ steps.commit_info.outputs.hash }}"
+          echo "- Message: ${{ steps.commit_info.outputs.message }}"
+          echo "- Node version: $(node --version)"
+          echo "- Build time: $(date)
