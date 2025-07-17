@@ -3,7 +3,7 @@ name: React CI/CD
 on:
   push:
     branches:
-      - main # change if needed
+      - main
 
 jobs:
   build-and-deploy:
@@ -40,7 +40,12 @@ jobs:
           mkdir -p builds
           mv dist "builds/${{ steps.sanitize.outputs.folder }}"
 
-      - name: 🚀 Commit and Push build folder ${{ secrets.DEPLOY_TOKEN }}
+      - name: 🧪 Check token length
+        run: echo "Length: ${#DEPLOY_TOKEN}"
+        env:
+          DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+
+      - name: 🚀 Commit and Push build folder
         env:
           DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
         run: |
