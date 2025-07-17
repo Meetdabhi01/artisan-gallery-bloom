@@ -37,10 +37,17 @@ jobs:
           SAFE_NAME=$(echo "$RAW_NAME" | tr -cd '[:alnum:]-_')
           echo "folder=$SAFE_NAME" >> $GITHUB_OUTPUT
 
+      - name: 🕵️ Show builds folder content
+        run: |
+          ls -R builds
+
       - name: 🗂️ Move build to builds/<commit-name>
         run: |
           mkdir -p builds
           mv dist "builds/${{ steps.sanitize.outputs.folder }}"
+
+          # Force Git to track the files
+          git add "builds/${{ steps.sanitize.outputs.folder }}" || echo "Nothing to add"
 
       - name: 🧪 Check token length
         run: echo "Length ${#DEPLOY_TOKEN}"
