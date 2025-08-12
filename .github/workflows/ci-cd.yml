@@ -1,118 +1,118 @@
-name: React CI/CD
+# name: React CI/CD
 
-on:
-  push:
-    branches:
-      - main
+# on:
+#   push:
+#     branches:
+#       - main
 
-jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
+# jobs:
+#   build-and-deploy:
+#     runs-on: ubuntu-latest
 
-    steps:
-      - name: 📥 Checkout source code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0 # required if you need full history
-          persist-credentials: true # ensure GitHub token stays
+#     steps:
+#       - name: 📥 Checkout source code
+#         uses: actions/checkout@v3
+#         with:
+#           fetch-depth: 0 # required if you need full history
+#           persist-credentials: true # ensure GitHub token stays
 
-      - name: 🧰 Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-          cache: "npm" # Built-in npm cache
+#       - name: 🧰 Setup Node.js
+#         uses: actions/setup-node@v3
+#         with:
+#           node-version: 18
+#           cache: "npm" # Built-in npm cache
 
-      - name: 🚀 Cache node_modules
-        uses: actions/cache@v3
-        id: cache-deps
-        with:
-          path: |
-            node_modules
-            ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
+#       - name: 🚀 Cache node_modules
+#         uses: actions/cache@v3
+#         id: cache-deps
+#         with:
+#           path: |
+#             node_modules
+#             ~/.npm
+#           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+#           restore-keys: |
+#             ${{ runner.os }}-node-
 
-      - name: 📦 Install dependencies (only if cache miss)
-        if: steps.cache-deps.outputs.cache-hit != 'true'
-        run: |
-          echo "🔄 Cache miss - Installing dependencies..."
-          npm ci --prefer-offline --no-audit
+#       - name: 📦 Install dependencies (only if cache miss)
+#         if: steps.cache-deps.outputs.cache-hit != 'true'
+#         run: |
+#           echo "🔄 Cache miss - Installing dependencies..."
+#           npm ci --prefer-offline --no-audit
 
-      - name: ✅ Dependencies status
-        run: |
-          if [ "${{ steps.cache-deps.outputs.cache-hit }}" == "true" ]; then
-            echo "🎉 Cache HIT! Dependencies restored from cache"
-          else
-            echo "📦 Cache MISS! Dependencies installed fresh"
-          fi
-          echo "📊 node_modules size: $(du -sh node_modules | cut -f1)"
+#       - name: ✅ Dependencies status
+#         run: |
+#           if [ "${{ steps.cache-deps.outputs.cache-hit }}" == "true" ]; then
+#             echo "🎉 Cache HIT! Dependencies restored from cache"
+#           else
+#             echo "📦 Cache MISS! Dependencies installed fresh"
+#           fi
+#           echo "📊 node_modules size: $(du -sh node_modules | cut -f1)"
 
-      - name: 🛠️ Build React App (Vite)
-        run: npm run build
+#       - name: 🛠️ Build React App (Vite)
+#         run: npm run build
 
-      - name: 🔍 Get Commit Message
-        id: get_commit
-        run: echo "message=$(git log -1 --pretty=%s)" >> $GITHUB_OUTPUT
+#       - name: 🔍 Get Commit Message
+#         id: get_commit
+#         run: echo "message=$(git log -1 --pretty=%s)" >> $GITHUB_OUTPUT
 
-      - name: 🧼 Sanitize commit message
-        id: sanitize
-        run: |
-          RAW_NAME="${{ steps.get_commit.outputs.message }}"
-          SAFE_NAME=$(echo "$RAW_NAME" | tr -cd '[:alnum:]-_')
-          echo "folder=$SAFE_NAME" >> $GITHUB_OUTPUT
+#       - name: 🧼 Sanitize commit message
+#         id: sanitize
+#         run: |
+#           RAW_NAME="${{ steps.get_commit.outputs.message }}"
+#           SAFE_NAME=$(echo "$RAW_NAME" | tr -cd '[:alnum:]-_')
+#           echo "folder=$SAFE_NAME" >> $GITHUB_OUTPUT
 
-      - name: 🕵️ Show builds folder content (before)
-        run: |
-          ls -R builds || echo "builds folder doesn't exist yet"
+#       - name: 🕵️ Show builds folder content (before)
+#         run: |
+#           ls -R builds || echo "builds folder doesn't exist yet"
 
-      - name: ⚡ Ultra Fast Zip Creation
-        run: |
-          mkdir -p builds
-          COMMIT_NAME=$(echo "${{ steps.get_commit.outputs.message }}" | tr -cd '[:alnum:]_-')
+#       - name: ⚡ Ultra Fast Zip Creation
+#         run: |
+#           mkdir -p builds
+#           COMMIT_NAME=$(echo "${{ steps.get_commit.outputs.message }}" | tr -cd '[:alnum:]_-')
 
-          # Add timestamp for uniqueness
-          ZIP_NAME="${COMMIT_NAME}"
+#           # Add timestamp for uniqueness
+#           ZIP_NAME="${COMMIT_NAME}"
 
-          echo "🚀 Creating ultra-fast zip: ${ZIP_NAME}"
+#           echo "🚀 Creating ultra-fast zip: ${ZIP_NAME}"
 
-          # Ultra-fast zip with zero compression
-          cd dist
-          time zip -r -0 "../builds/${ZIP_NAME}.zip" . &
-          ZIP_PID=$!
+#           # Ultra-fast zip with zero compression
+#           cd dist
+#           time zip -r -0 "../builds/${ZIP_NAME}.zip" . &
+#           ZIP_PID=$!
 
-          echo "📦 Zip creation running in background..."
+#           echo "📦 Zip creation running in background..."
 
-          # Wait for zip completion
-          wait $ZIP_PID
-          cd ..
+#           # Wait for zip completion
+#           wait $ZIP_PID
+#           cd ..
 
-          # Quick verification and size check
-          if [ -f "builds/${ZIP_NAME}.zip" ]; then
-            SIZE=$(du -sh "builds/${ZIP_NAME}.zip" | cut -f1)
-            echo "✅ SUCCESS: ${ZIP_NAME}.zip created (${SIZE})"
-          else
-            echo "❌ FAILED: Zip creation failed!"
-            exit 1
-          fi
+#           # Quick verification and size check
+#           if [ -f "builds/${ZIP_NAME}.zip" ]; then
+#             SIZE=$(du -sh "builds/${ZIP_NAME}.zip" | cut -f1)
+#             echo "✅ SUCCESS: ${ZIP_NAME}.zip created (${SIZE})"
+#           else
+#             echo "❌ FAILED: Zip creation failed!"
+#             exit 1
+#           fi
 
-          echo "📊 Current builds:"
-          ls -la builds/
+#           echo "📊 Current builds:"
+#           ls -la builds/
 
-      - name: 🚀 Commit and Push build folder
-        run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
+#       - name: 🚀 Commit and Push build folder
+#         run: |
+#           git config user.name "github-actions"
+#           git config user.email "github-actions@github.com"
 
-          git add builds/ --force
-          if [ -n "$(git status --porcelain)" ]; then
-            git commit -m "Add build for: ${{ steps.get_commit.outputs.message }}"
-            git push
-          else
-            echo "No new build changes to commit"
-          fi
+#           git add builds/ --force
+#           if [ -n "$(git status --porcelain)" ]; then
+#             git commit -m "Add build for: ${{ steps.get_commit.outputs.message }}"
+#             git push
+#           else
+#             echo "No new build changes to commit"
+#           fi
 
-      - name: 📂 Show Git Status
-        run: |
-          git status
-          git log -1
+#       - name: 📂 Show Git Status
+#         run: |
+#           git status
+#           git log -1
