@@ -8,7 +8,7 @@ import { X } from "lucide-react";
 const portfolioItems = [
   {
     id: "p1",
-    title: "Hand-painted Ceramic Collection",
+    title: "Hand",
     description:
       "A series of hand-painted ceramic bowls and plates with intricate floral patterns.",
     image:
